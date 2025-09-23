@@ -35,7 +35,7 @@ interface EncryptedKeysResponse extends BaseResponse {
 export const API_BASE_URL = 'http://3.0.109.229:3000';
 export const AUTH_TOKEN_KEY = 'semi_auth_token';
 
-export const MOCK_RESPONSE = true;
+export const MOCK_RESPONSE = false;
 
 // 方案B：全局变量存储真实生成的钱包信息
 let mockWalletInfo: { evm_chain_address?: string; evm_chain_active_key?: string; encrypted_keys?: string } = {}
