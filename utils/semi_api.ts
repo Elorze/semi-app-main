@@ -32,7 +32,7 @@ interface EncryptedKeysResponse extends BaseResponse {
 }
 
 // API 基础配置
-export const API_BASE_URL = 'http://3.0.109.229:3000';
+export const API_BASE_URL = 'https://api.ntdao.xyz';
 export const AUTH_TOKEN_KEY = 'semi_auth_token';
 
 export const MOCK_RESPONSE = false;
