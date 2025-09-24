@@ -1,15 +1,17 @@
-import { getOwnedNFTs } from "thirdweb/extensions/erc721";
+import { getOwnedNFTs as getOwnedNFTs721 } from "thirdweb/extensions/erc721";
+import { getOwnedNFTs as getOwnedNFTs1155 } from "thirdweb/extensions/erc1155";
 import { getContract } from "thirdweb";
 import { createThirdwebClient } from "thirdweb";
 import { defineChain } from "thirdweb";
 import {useUserStore } from '~/stores/user';
 
 /**
- * 获取指定ERC721合约的所有NFT
+ * 获取指定ERC721和ERC1155合约的所有NFT
  * @returns Promise<Array<NFT>> - 返回NFT数组，最多100个
  */
 export async function fetchNFTs() {
-  const contractAddress = import.meta.env.VITE_ERC721_ADDRESS as string | undefined;
+  const contractAddress721 = import.meta.env.VITE_ERC721_ADDRESS as string | undefined;
+  const contractAddress1155 = import.meta.env.VITE_ERC1155_ADDRESS as string | undefined;
   const network = Number(import.meta.env.VITE_NETWORK);
   const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
   
@@ -23,16 +25,23 @@ export async function fetchNFTs() {
   // const walletAddress = '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95';
   // const walletAddress = '0x0000000000000000000000000000000000000000';
 
+  // 检查用户是否已登录
+  if (!walletAddress) {
+    throw new Error('用户未登录或钱包地址未设置');
+  }
+
   // 调试信息
   console.log('当前用户钱包地址：', walletAddress);
   console.log('🔍 环境变量调试信息:');
-  console.log('VITE_ERC721_ADDRESS:', contractAddress);
+  console.log('VITE_ERC721_ADDRESS:', contractAddress721);
+  console.log('VITE_ERC1155_ADDRESS:', contractAddress1155);
   console.log('VITE_NETWORK:', import.meta.env.VITE_NETWORK);
   console.log('VITE_THIRDWEB_CLIENT_ID:', clientId);
   console.log('当前构建环境:', import.meta.env.MODE);
   
-  if (!contractAddress) {
-    throw new Error('VITE_ERC721_ADDRESS 环境变量未设置');
+  // 检查是否至少有一个合约地址
+  if (!contractAddress721 && !contractAddress1155) {
+    throw new Error('至少需要设置一个合约地址 (VITE_ERC721_ADDRESS 或 VITE_ERC1155_ADDRESS)');
   }
   
   if (!network) {
@@ -44,24 +53,49 @@ export async function fetchNFTs() {
   }
   
   try {
-    // 创建client
     const client = createThirdwebClient({ clientId });
     const chain = defineChain(network);
-
-    // 创建合约实例 - 使用简化的方式
-    const contract = getContract({
-      client,
-      chain,
-      address: contractAddress as `0x${string}`
-    });
     
-    const ownedNFTs = await getOwnedNFTs({
-      contract,
-      owner : walletAddress as string,
-      // 不传start和count，获取所有NFT（最多100个）
-    });
+    const allNFTs = [];
     
-    return ownedNFTs;
+    // 获取ERC721 NFT
+    if (contractAddress721) {
+      console.log('正在获取ERC721 NFT...');
+      const contract721 = getContract({
+        client,
+        chain,
+        address: contractAddress721 as `0x${string}`
+      });
+      
+      const nfts721 = await getOwnedNFTs721({
+        contract: contract721,
+        owner: walletAddress as string,
+      });
+      
+      console.log('获取到ERC721 NFT数量:', nfts721.length);
+      allNFTs.push(...nfts721);
+    }
+    
+    // 获取ERC1155 NFT
+    if (contractAddress1155) {
+      console.log('正在获取ERC1155 NFT...');
+      const contract1155 = getContract({
+        client,
+        chain,
+        address: contractAddress1155 as `0x${string}`
+      });
+      
+      const nfts1155 = await getOwnedNFTs1155({
+        contract: contract1155,
+        address: walletAddress as string,
+      });
+      
+      console.log('获取到ERC1155 NFT数量:', nfts1155.length);
+      allNFTs.push(...nfts1155);
+    }
+    
+    console.log('总共获取到NFT数量:', allNFTs.length);
+    return allNFTs;
   } catch (error) {
     console.error('获取NFT失败:', error);
     throw error;
