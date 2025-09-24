@@ -16,11 +16,11 @@ export async function fetchNFTs() {
   // 获取当前用户钱包地址
   const userStore = useUserStore();
   const user = userStore.user;
-  // 真是使用返回当前用户地址
-  // const walletAddress = user?.evm_chain_address;
+  // 真实使用返回当前用户地址
+  const walletAddress = user?.evm_chain_address;
 
   // 开发测试使用固定 safe account
-  const walletAddress = '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95';
+  // const walletAddress = '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95';
   // const walletAddress = '0x0000000000000000000000000000000000000000';
 
   // 调试信息
