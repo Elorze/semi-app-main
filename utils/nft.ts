@@ -4,22 +4,21 @@ import { defineChain } from "thirdweb";
 import { useUserStore } from '~/stores/user';
 
 export async function fetchNFTs() {
-  const network = Number(import.meta.env.VITE_NETWORK);
-  const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
-  const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL as string | undefined;
+  // const network = Number(import.meta.env.VITE_NETWORK);
+  // const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
+  // const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL as string | undefined;
 
   // 获取当前用户钱包地址
-  const userStore = useUserStore();
-  const user = userStore.user;
-  const walletAddress = user?.evm_chain_address as `0x${string}`;
+  // const userStore = useUserStore();
+  // const user = userStore.user;
+  // const walletAddress = user?.evm_chain_address as `0x${string}`;
+  const clientId = "cb6e665e49c1e28108a2d14f3cd38a0d" as const;
+  const rpcUrl = "https://11155111.rpc.thirdweb.com"; // 可以先用 thirdweb 默认 RPC，别忘了后面再换回环境变量
+  const walletAddress = "0x6D489C852Cd04D616Bb270748B8527a51eAC9002" as const;
 
   // 检查用户是否已登录
   if (!walletAddress) {
     throw new Error('用户未登录或钱包地址未设置');
-  }
-
-  if (!network) {
-    throw new Error('VITE_NETWORK 环境变量未设置');
   }
   
   if (!clientId) {
@@ -45,7 +44,7 @@ export async function fetchNFTs() {
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
    
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 链信息=`, {
-      chainId: network,
+      chainId: 11155111,
       chainName: chain.name,
       clientId: clientId
     });
@@ -67,7 +66,7 @@ export async function fetchNFTs() {
     });
     
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: API返回的原始数据=`, nfts);
-    
+
     // 按类型分组显示日志
     const erc721s = nfts.filter(nft => nft.type === "ERC721");
     const erc1155s = nfts.filter(nft => nft.type === "ERC1155");
