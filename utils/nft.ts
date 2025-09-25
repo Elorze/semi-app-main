@@ -14,7 +14,7 @@ export async function fetchNFTs() {
   // const walletAddress = user?.evm_chain_address as `0x${string}`;
   const clientId = "cb6e665e49c1e28108a2d14f3cd38a0d" as const;
   const rpcUrl = "https://11155111.rpc.thirdweb.com"; // 可以先用 thirdweb 默认 RPC，别忘了后面再换回环境变量
-  const walletAddress = "0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95" as const;
+  const walletAddress = "0x6D489C852Cd04D616Bb270748B8527a51eAC9002" as const;
 
   // 检查用户是否已登录
   if (!walletAddress) {
