@@ -6,7 +6,8 @@ import { useUserStore } from '~/stores/user';
 export async function fetchNFTs() {
   const network = Number(import.meta.env.VITE_NETWORK);
   const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
-  
+  const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL as string | undefined;
+
   // 获取当前用户钱包地址
   const userStore = useUserStore();
   const user = userStore.user;
@@ -27,7 +28,18 @@ export async function fetchNFTs() {
   
   try {
     const client = createThirdwebClient({ clientId });
-    const chain = defineChain(network);
+
+    const chain = defineChain({
+      id: 11155111,
+      name: "Sepolia",
+      nativeCurrency: {
+        name: "Sepolia Ether",
+        symbol: "ETH",
+        decimals: 18,
+      },
+      rpc: rpcUrl, // 
+      testnet: true, // Sepolia 是测试网
+    });
     
     // 🔍 添加详细的调试信息
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
@@ -53,6 +65,8 @@ export async function fetchNFTs() {
       chains: [chain],
       ownerAddress: walletAddress,
     });
+    
+    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: API返回的原始数据=`, nfts);
     
     // 按类型分组显示日志
     const erc721s = nfts.filter(nft => nft.type === "ERC721");
