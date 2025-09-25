@@ -29,6 +29,22 @@ export async function fetchNFTs() {
     const client = createThirdwebClient({ clientId });
     const chain = defineChain(network);
     
+    // 🔍 添加详细的调试信息
+    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
+   
+    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 链信息=`, {
+      chainId: network,
+      chainName: chain.name,
+      clientId: clientId
+    });
+    
+    // �� 添加API调用前的调试
+    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 调用Insight.getOwnedNFTs参数=`, {
+      client: !!client,
+      chains: [chain],
+      ownerAddress: walletAddress
+    });
+
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
     
 
