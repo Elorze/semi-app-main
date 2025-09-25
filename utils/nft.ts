@@ -14,7 +14,7 @@ export async function fetchNFTs() {
   // const walletAddress = user?.evm_chain_address as `0x${string}`;
   const clientId = "cb6e665e49c1e28108a2d14f3cd38a0d" as const;
   const rpcUrl = "https://11155111.rpc.thirdweb.com"; // 可以先用 thirdweb 默认 RPC，别忘了后面再换回环境变量
-  const walletAddress = "0x6D489C852Cd04D616Bb270748B8527a51eAC9002" as const;
+  const walletAddress = "0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95" as const;
 
   // 检查用户是否已登录
   if (!walletAddress) {
@@ -42,38 +42,12 @@ export async function fetchNFTs() {
     
     // 🔍 添加详细的调试信息
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
-   
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 链信息=`, {
-      chainId: 11155111,
-      chainName: chain.name,
-      clientId: clientId
-    });
-    
-    // �� 添加API调用前的调试
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 调用Insight.getOwnedNFTs参数=`, {
-      client: !!client,
-      chains: [chain],
-      ownerAddress: walletAddress
-    });
-
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
-    
-
+  
     const nfts = await Insight.getOwnedNFTs({
       client,
       chains: [chain],
       ownerAddress: walletAddress,
     });
-    
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: API返回的原始数据=`, nfts);
-
-    // 按类型分组显示日志
-    const erc721s = nfts.filter(nft => nft.type === "ERC721");
-    const erc1155s = nfts.filter(nft => nft.type === "ERC1155");
-    
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 总共获取NFT数量=${nfts.length}`);
-    console.log(`[${new Date().toISOString()}] [RECV] 接收数据: ERC721数量=${erc721s.length}, ERC1155数量=${erc1155s.length}`);
-    
     return nfts;
   } catch (error) {
     console.error(`[${new Date().toISOString()}] [RECV] 接收数据: 获取NFT失败 -> ${String(error)}`);
