@@ -65,24 +65,89 @@ const toExplorer = (tx: string) => {
 }
 
 onMounted(async () => {
+    console.log('🔍 === 活动记录页面加载 ===')
+    console.log('用户信息:', user.value)
+    console.log('用户地址:', user.value?.evm_chain_address)
+    console.log('链信息:', useChain.chain)
+    
     const updateRecipients = async (chain: Chain, safeAddress: string) => {
+        console.log('🔍 === 开始获取活动记录 ===')
+        console.log('Chain:', chain.name, chain.id)
+        console.log('Safe Address:', safeAddress)
+        
         loading.value = true
         try {
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-            const result = await fetch(`/api/actions?safeAddress=${safeAddress}&chainId=${chain.id}&timezone=${timezone}`)
+            console.log('Timezone:', timezone)
+            
+            const url = `/api/actions?safeAddress=${safeAddress}&chainId=${chain.id}&timezone=${timezone}`
+            console.log('请求 URL:', url)
+            console.log('开始发送请求...')
+            
+            // 展：简单的超时 + 重试逻辑
+            let result: Response
+            let lastError: Error | null = null
+            
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    console.log(`�� 请求尝试 ${attempt + 1}/3`)
+                    
+                    const controller = new AbortController()
+                    const timeoutId = setTimeout(() => controller.abort(), 30000)
+                    
+                    result = await fetch(url, { signal: controller.signal })
+                    clearTimeout(timeoutId)
+                    
+                    console.log('响应状态:', result.status)
+                    break
+                    
+                } catch (error) {
+                    lastError = error as Error
+                    console.error(`❌ 尝试 ${attempt + 1} 失败:`, error)
+                    
+                    if (attempt < 2) {
+                        console.log('⏳ 等待1秒后重试...')
+                        await new Promise(resolve => setTimeout(resolve, 1000))
+                    }
+                }
+            }
+            
+            if (!result!) {
+                throw lastError || new Error('请求失败')
+            }
+            
+            console.log('响应头:', Object.fromEntries(result.headers.entries()))
+            
+            if (!result.ok) {
+                console.error('请求失败，状态码:', result.status)
+                const errorText = await result.text()
+                console.error('错误内容:', errorText)
+            }
+            
             const resultData = await result.json()
-            console.log('[actionsresult]:', resultData)
+            console.log('原始响应数据:', resultData)
+            console.log('解析后的活动记录:', parseActions(resultData.results))
+            
             actions.value = parseActions(resultData.results)
+            console.log('活动记录数量:', actions.value.length)
+            
         } catch (error) {
-            console.error('Error updating recipients:', error)
+            console.error('获取活动记录失败:', error)
+            console.error('错误详情:', (error as Error).message)
+            console.error('错误堆栈:', (error as Error).stack)
             throw error
         } finally {
             loading.value = false
+            console.log('加载完成')
         }
     }
 
     if (user.value?.evm_chain_address) {
-       updateRecipients(useChain.chain, user.value?.evm_chain_address!)
+        console.log('用户有地址，开始获取活动记录')
+        updateRecipients(useChain.chain, user.value?.evm_chain_address!)
+    } else {
+        console.log('❌ 用户没有地址，无法获取活动记录')
+        console.log('用户数据:', user.value)
     }
 })
 </script>

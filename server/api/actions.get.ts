@@ -1,13 +1,28 @@
 export default defineEventHandler(async (event) => {
-    const {safeAddress, chainId, timezone} = getQuery(event) // 获取查询参数
+    const {safeAddress, chainId, timezone} = getQuery(event)
     
     console.log('🔍 === Safe API 调试信息 ===')
     console.log('Safe Address:', safeAddress)
-    console.log('Chain ID:', chainId)
+    console.log('Chain ID:', chainId, typeof chainId)
     console.log('Timezone:', timezone)
     
+    // 检查参数是否正确
+    if (chainId !== '11155111') {
+        console.error('❌ 链ID不正确，期望: 11155111，实际:', chainId)
+    }
+    
     try {
-        const result = await fetch(`https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`)
+        const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`
+        console.log('请求 URL:', url)
+        
+        const result = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json',
+                'Referer': 'https://app.safe.global/',
+            },
+            signal: AbortSignal.timeout(30000)
+        })
         
         console.log('API 响应状态:', result.status)
         console.log('API 响应头:', Object.fromEntries(result.headers.entries()))
@@ -22,6 +37,7 @@ export default defineEventHandler(async (event) => {
         console.log('Safe API 返回数据:', data)
         
         return data
+        
     } catch (error) {
         console.error('Safe API 调用失败:', error)
         // 返回空数据而不是抛出错误，避免前端崩溃

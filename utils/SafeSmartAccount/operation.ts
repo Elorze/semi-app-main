@@ -113,11 +113,22 @@ export const transfer = async ({ to, amount, privateKey, chain }: TransferOption
     } catch (error) {
         console.log('⚠️ 无法检查部署状态，假设未部署:', error)
     }
-
+    
+    // 展：pimlico要求，先获取gas价格
+    const gasPrice = await pimlicoGetUserOperationGasPrice(chain)
     const gas = await bundlerClient.estimateUserOperationGas({
         account: smartAccount,
-        calls: [tx]
+        calls: [tx],
+        maxFeePerGas: gasPrice.maxFeePerGas,
+        maxPriorityFeePerGas: gasPrice.maxPriorityFeePerGas,
     })
+
+
+    console.log('[tx]:', tx)
+    // const gas = await bundlerClient.estimateUserOperationGas({
+    //     account: smartAccount,
+    //     calls: [tx]
+    // })
 
     console.log('[gas]:', gas)
 
@@ -138,8 +149,11 @@ export const transfer = async ({ to, amount, privateKey, chain }: TransferOption
             console.log('[gasPrice]:', { maxFeePerGas, maxPriorityFeePerGas })
             params = {
                 ...params,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
+                // maxFeePerGas,
+                // maxPriorityFeePerGas,
+                // 展
+                maxFeePerGas: gasPrice.maxFeePerGas,
+                maxPriorityFeePerGas: gasPrice.maxPriorityFeePerGas,
                 preVerificationGas: gas.preVerificationGas,
                 verificationGasLimit: gas.verificationGasLimit,
             }
