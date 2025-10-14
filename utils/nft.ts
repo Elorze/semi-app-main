@@ -5,16 +5,13 @@ import { useUserStore } from '~/stores/user';
 
 export async function fetchNFTs() {
   // const network = Number(import.meta.env.VITE_NETWORK);
-  // const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
+  const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
   // const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL as string | undefined;
-
   //获取当前用户钱包地址
   const userStore = useUserStore();
   const user = userStore.user;
   const walletAddress = user?.evm_chain_address as `0x${string}`;
-  const clientId = "cb6e665e49c1e28108a2d14f3cd38a0d" as const;
-  const rpcUrl = "https://11155111.rpc.thirdweb.com"; // 可以先用 thirdweb 默认 RPC，别忘了后面再换回环境变量
-  // const walletAddress = "0x6D489C852Cd04D616Bb270748B8527a51eAC9002" as const;
+  //const rpcUrl = "https://10.rpc.thirdweb.com"; // 可以先用 thirdweb 默认 RPC，别忘了后面再换回环境变量
 
   // 检查用户是否已登录
   if (!walletAddress) {
@@ -28,17 +25,8 @@ export async function fetchNFTs() {
   try {
     const client = createThirdwebClient({ clientId });
 
-    const chain = defineChain({
-      id: 11155111,
-      name: "Sepolia",
-      nativeCurrency: {
-        name: "Sepolia Ether",
-        symbol: "ETH",
-        decimals: 18,
-      },
-      rpc: rpcUrl, // 
-      testnet: true, // Sepolia 是测试网
-    });
+    // 直接使用链 ID，thirdweb 会自动识别 Optimism 主网
+    const chain = defineChain(11155420);
     
     // 🔍 添加详细的调试信息
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
