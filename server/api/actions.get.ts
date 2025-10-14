@@ -6,10 +6,6 @@ export default defineEventHandler(async (event) => {
     console.log('Chain ID:', chainId, typeof chainId)
     console.log('Timezone:', timezone)
     
-    // 检查参数是否正确
-    if (chainId !== '11155111') {
-        console.error('❌ 链ID不正确，期望: 11155111，实际:', chainId)
-    }
     
     try {
         const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`

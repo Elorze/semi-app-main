@@ -44,17 +44,7 @@ export const getSafeAccount = async (privateKey: `0x${string}`, chain: Chain) =>
 
         console.log('✅ Safe Account 创建成功，地址:', account.address)
         console.log('部署信息已包含在 account 对象中')
-        
-        // 验证地址是否正确
-        const expectedAddress = '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95'
-        const isAddressCorrect = account.address.toLowerCase() === expectedAddress.toLowerCase()
-        console.log('地址验证:', isAddressCorrect ? '✅ 正确' : '❌ 错误')
-        console.log('期望地址:', expectedAddress)
-        console.log('实际地址:', account.address)
-        
-        if (!isAddressCorrect) {
-            console.warn('⚠️ 地址不匹配，可能需要检查私钥或配置')
-        }
+
 
         return account
         
