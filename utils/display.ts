@@ -40,7 +40,7 @@ export function parseActions(history: any[]) {
     }
     
     history
-    //.filter((item) => item.type === 'TRANSACTION' && item.transaction.txInfo.type !== 'Creation')
+    .filter((item) => item.type === 'TRANSACTION' && item.transaction.txInfo.type !== 'Creation')
     .forEach((item) => {
         console.log('item', item)
         actions.push({

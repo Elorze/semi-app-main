@@ -26,7 +26,7 @@ export async function fetchNFTs() {
     const client = createThirdwebClient({ clientId });
 
     // 直接使用链 ID，thirdweb 会自动识别 Optimism 主网
-    const chain = defineChain(11155420);
+    const chain = defineChain(10);
     
     // 🔍 添加详细的调试信息
     console.log(`[${new Date().toISOString()}] [RECV] 接收数据: 开始获取用户NFT, 钱包=${walletAddress}`);
