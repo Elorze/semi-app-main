@@ -8,7 +8,8 @@ export default defineEventHandler(async (event) => {
     
     
     try {
-        const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`
+        // 这个不知道为什么查不到交易数据，换了一个etherscan的 const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`
+        const url = `https://api-optimistic.etherscan.io/api?module=account&action=txlist&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc`
         console.log('请求 URL:', url)
         
         const result = await fetch(url, {
