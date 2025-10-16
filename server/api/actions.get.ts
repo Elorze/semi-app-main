@@ -8,9 +8,9 @@ export default defineEventHandler(async (event) => {
     
     
     try {
-        // 这个不知道为什么查不到交易数据，换了一个etherscan的 const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`
-        const apiKey = process.env.OPTIMISTIC_ETHERSCAN_API_KEY
-        const url = `https://api-optimistic.etherscan.io/v2/api?chainid=10&module=account&action=txlist&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
+        const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${timezone}&trusted=true&imitation=false`
+        //const apiKey = process.env.OPTIMISTIC_ETHERSCAN_API_KEY
+        //const url = `https://api-optimistic.etherscan.io/v2/api?chainid=10&module=account&action=txlist&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
         console.log('请求 URL:', url)
         
         const result = await fetch(url, {
