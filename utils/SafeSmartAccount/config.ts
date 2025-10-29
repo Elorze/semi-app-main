@@ -73,15 +73,33 @@ export const V1_4_1_DEPLOYMENTS: Deployment = {
     // }
 }
 
+// 辅助函数：检查必需的环境变量
+function getRequiredEnv(key: string): string {
+    const value = import.meta.env[key]
+    if (!value) {
+        throw new Error(
+            `❌ 缺少必需的环境变量: ${key}\n` +
+            `请在 Vercel 环境变量中设置 ${key}`
+        )
+    }
+    return value
+}
 
 // 测试阶段：只配置 Sepolia 测试网
 // 开发阶段：取消注释添加 Optimism 主网支持
+// export const BUNDLER_URL: BundlerUrl = {
+//     10: import.meta.env.VITE_OP_BUNDLER_URL!, // 测试阶段注释掉
+//     //11155111: import.meta.env.VITE_SEPOLIA_BUNDLER_URL!,
+// }
+
+// export const RPC_URL: RPCUrl = {
+//     10: import.meta.env.VITE_OP_RPC_URL, // 测试阶段注释掉
+//     //11155111: import.meta.env.VITE_SEPOLIA_RPC_URL!,
+// }
 export const BUNDLER_URL: BundlerUrl = {
-    10: import.meta.env.VITE_OP_BUNDLER_URL!, // 测试阶段注释掉
-    //11155111: import.meta.env.VITE_SEPOLIA_BUNDLER_URL!,
+    10: getRequiredEnv('VITE_OP_BUNDLER_URL'), // ✅ 使用检查
 }
 
 export const RPC_URL: RPCUrl = {
-    10: import.meta.env.VITE_OP_RPC_URL!, // 测试阶段注释掉
-    //11155111: import.meta.env.VITE_SEPOLIA_RPC_URL!,
+    10: getRequiredEnv('VITE_OP_RPC_URL'), // ✅ 使用检查
 }
