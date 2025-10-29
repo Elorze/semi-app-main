@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         // const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${encodedTimezone}&trusted=true&imitation=false`
         
         // ✅ 新 API：使用 Etherscan API 查询内部交易（包括模块交易）
-        const url = `https://api.etherscan.io/v2/api?chainid=${chainId}&module=account&action=txlistinternal&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
+        const url = `https://proxy.ntdao.xyz/etherscan/v2/api?chainid=${chainId}&module=account&action=txlistinternal&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
         console.log('请求 URL:', url.replace(apiKey || '', '***'))
         
         const result = await fetch(url, {

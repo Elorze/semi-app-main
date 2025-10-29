@@ -3,6 +3,29 @@ import { createThirdwebClient } from "thirdweb";
 import { defineChain } from "thirdweb";
 import { useUserStore } from '~/stores/user';
 
+//拦截 Thirdweb API 请求，重定向到代理服务器
+if (typeof window !== 'undefined') {
+  const originalFetch = window.fetch;
+  window.fetch = function (input: RequestInfo | URL,init?: RequestInit) {
+    let url = typeof input === 'string'? input : input instanceof URL ? input.href : (input as Request).url;
+
+    // 拦截 thirdweb insight API 请求
+    if(url.includes('insight.thirdweb.com')){
+      const proxyBase = import.meta.env.VITE_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
+      url = url.replace('https://insight.thirdweb.com', `${proxyBase}/thirdweb`);
+      console.log('[代理] Thirdweb API 请求已重定向:', url);
+
+      // 如果 input 是 Request D对象，需要创建新的 Request
+      if (typeof input !== 'string' && !(input instanceof URL)){
+        return originalFetch(new Request(url,input),init);
+      }
+    }
+
+    return originalFetch(url,init);
+  };
+}
+
+
 export async function fetchNFTs() {
   // const network = Number(import.meta.env.VITE_NETWORK);
   const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID as string | undefined;
@@ -45,7 +68,7 @@ export async function fetchNFTs() {
 
 /**
  * 将 ipfs:// 链接解析为可在浏览器加载的 HTTP 网关链接
- * 可通过 VITE_IPFS_GATEWAY 自定义网关（例如：https://cloudflare-ipfs.com 或 https://ipfs.io）
+ * 可通过 VITE_IPFS_GATEWAY 自定义网关（例如：https://ipfs.io 或 https://nftstorage.link）
  */
 export function resolveIpfsUrl(url?: string): string {
   if (!url) return '';
@@ -57,7 +80,7 @@ export function resolveIpfsUrl(url?: string): string {
     // 允许用户通过环境变量自定义网关根，例如：https://cloudflare-ipfs.com 或 https://nftstorage.link
     let gatewayBase = (import.meta as any).env?.VITE_IPFS_GATEWAY as string | undefined;
     if (!gatewayBase || typeof gatewayBase !== 'string') {
-      gatewayBase = 'https://cloudflare-ipfs.com';
+      gatewayBase = 'https://ipfs.io';
     }
 
     // 规范化：去除末尾斜杠与末尾 /ipfs
@@ -78,6 +101,7 @@ export function resolveIpfsUrl(url?: string): string {
  * - 兼容 `VITE_IPFS_GATEWAY` 单个值
  */
 export function getDefaultIpfsGateways(): string[] {
+  const proxyBase = import.meta.env.VITE_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
   const envList = (import.meta as any).env?.VITE_IPFS_GATEWAYS as string | undefined;
   const single = (import.meta as any).env?.VITE_IPFS_GATEWAY as string | undefined;
 
@@ -93,9 +117,9 @@ export function getDefaultIpfsGateways(): string[] {
 
   if (bases.length === 0) {
     bases = [
-      'https://cloudflare-ipfs.com',
-      'https://nftstorage.link',
+      proxyBase,
       'https://ipfs.io',
+      'https://nftstorage.link',
       'https://dweb.link',
       'https://gateway.pinata.cloud',
     ];
