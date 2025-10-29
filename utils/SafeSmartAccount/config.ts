@@ -73,14 +73,6 @@ export const V1_4_1_DEPLOYMENTS: Deployment = {
     // }
 }
 
-// ========== 详细的环境变量调试信息 ==========
-console.log('🔍 === ALCHEMY 环境变量调试信息 ===')
-console.log('📡 VITE_OP_BUNDLER_URL:', import.meta.env.VITE_OP_BUNDLER_URL)
-console.log('🌐 VITE_OP_RPC_URL:', import.meta.env.VITE_OP_RPC_URL)
-console.log('🔑 VITE_INFURA_API_KEY:', import.meta.env.VITE_INFURA_API_KEY ? '已设置' : '未设置')
-console.log('📁 当前环境:', import.meta.env.MODE)
-console.log('=====================================')
-
 
 // 测试阶段：只配置 Sepolia 测试网
 // 开发阶段：取消注释添加 Optimism 主网支持
