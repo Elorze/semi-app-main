@@ -11,7 +11,7 @@ if (typeof window !== 'undefined') {
 
     // 拦截 thirdweb insight API 请求
     if(url.includes('insight.thirdweb.com')){
-      const proxyBase = import.meta.env.VITE_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
+      const proxyBase = import.meta.env.NUXT_PUBLIC_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
       url = url.replace('https://insight.thirdweb.com', `${proxyBase}/thirdweb`);
       console.log('[代理] Thirdweb API 请求已重定向:', url);
 
@@ -101,7 +101,7 @@ export function resolveIpfsUrl(url?: string): string {
  * - 兼容 `VITE_IPFS_GATEWAY` 单个值
  */
 export function getDefaultIpfsGateways(): string[] {
-  const proxyBase = import.meta.env.VITE_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
+  const proxyBase = import.meta.env.NUXT_PUBLIC_PROXY_BASE_URL || 'https://proxy.ntdao.xyz';
   const envList = (import.meta as any).env?.VITE_IPFS_GATEWAYS as string | undefined;
   const single = (import.meta as any).env?.VITE_IPFS_GATEWAY as string | undefined;
 
