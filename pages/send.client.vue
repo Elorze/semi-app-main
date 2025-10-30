@@ -111,19 +111,9 @@ const fetchBalance = async () => {
         loading.value = true
         
         console.log('🔍 === 余额查询调试信息 ===')
-        console.log('用户私钥地址:', user.user?.evm_chain_active_key)
         console.log('当前链:', useChain.chain)
         console.log('链ID:', useChain.chain.id)
         
-        // 使用用户数据中的 Safe Account 地址
-        // 这是用户真实的钱包地址，应该在所有页面保持一致
-        const predictSafeAddress = user.user?.evm_chain_address as `0x${string}`
-        
-        console.log('使用的地址 (用户数据):', predictSafeAddress)
-        console.log('期望的地址:', '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95')
-        console.log('地址是否匹配:', predictSafeAddress === '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95')
-        
-        balance.value = await getBalance(predictSafeAddress, useChain.chain)
         console.log('查询到的余额:', balance.value)
         console.log('余额 (ETH):', Number(formatEther(balance.value)))
         console.log('显示余额 (格式化):', displayBalance(balance.value))
