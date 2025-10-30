@@ -75,6 +75,15 @@ export const V1_4_1_DEPLOYMENTS: Deployment = {
 
 // 辅助函数：检查必需的环境变量
 function getRequiredEnv(key: string): string {
+        // 🔍 调试：打印所有相关信息
+    console.log('🔍 === 环境变量调试 ===')
+    console.log('查找的 key:', key)
+    console.log(`import.meta.env[${key}]:`, import.meta.env[key])
+    console.log('所有 NUXT_PUBLIC_ 开头的环境变量:', 
+        Object.keys(import.meta.env).filter(k => k.startsWith('NUXT_PUBLIC_')))
+    console.log('所有环境变量 key:', Object.keys(import.meta.env))
+    console.log('========================')
+    
     const value = import.meta.env[key]
     if (!value) {
         throw new Error(
