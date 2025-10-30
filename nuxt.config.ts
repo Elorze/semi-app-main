@@ -23,8 +23,8 @@ export default defineNuxtConfig({
     // public 中的变量客户端也可以访问
     public: {
       // 如果需要客户端访问的变量，在这里添加
-      opRpcUrl: process.env.NUXT_PUBLIC_OP_RPC_URL || '',
-      opBundlerUrl: process.env.NUXT_PUBLIC_OP_BUNDLER_URL || '',     
+      OP_RPC_URL: process.env.NUXT_PUBLIC_OP_RPC_URL || '',
+      OP_BUNDLER_URL: process.env.NUXT_PUBLIC_OP_BUNDLER_URL || '',     
     }
   }
 })

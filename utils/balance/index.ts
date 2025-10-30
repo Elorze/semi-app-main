@@ -1,6 +1,6 @@
 import { POPULAR_ERC20_TOKENS, type TokenMetadata } from './tokens'
 import {createPublicClient, http, type Address, type Chain, erc20Abi} from 'viem'
-import { RPC_URL } from '~/utils/SafeSmartAccount/config'
+import { getRpcUrl } from '~/utils/SafeSmartAccount/config'
 
 // 检测是否是 Safe Account 地址
 const isSafeAccount = (address: Address): boolean => {
@@ -12,7 +12,7 @@ const isSafeAccount = (address: Address): boolean => {
 export async function getBalance(address: Address, chain: Chain) {
     const client = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
     
     // 直接查询余额，不管是普通地址还是 Safe Account
@@ -23,7 +23,7 @@ export async function getBalance(address: Address, chain: Chain) {
 export async function getErc20Balance(address: Address, tokenAddress: Address, chain: Chain) {
     const client = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
     const balance = await client.readContract({
         address: tokenAddress, 
@@ -44,7 +44,7 @@ export interface ERC20Balance {
 export async function getPopularERC20Balance(address: Address, chain: Chain): Promise<ERC20Balance[]> {
     const client = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
 
     const tokens = POPULAR_ERC20_TOKENS[chain.id]

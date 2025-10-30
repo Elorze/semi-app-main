@@ -1,9 +1,9 @@
 import { createPublicClient, http, type Chain } from "viem"
 import { createBundlerClient } from "viem/account-abstraction"
-import { BUNDLER_URL, RPC_URL } from "../config"
+import { getBundlerUrl, getRpcUrl } from "../config"
 
 export const prepareClient = async (chain: Chain) => {
-    let bundlerUrl = BUNDLER_URL[chain.id]
+    let bundlerUrl = getBundlerUrl(chain.id)
     if (!bundlerUrl) {
         console.log('Unsupported chain: ', chain)
         throw new Error(`Unsupported chain: ${chain.name}`)
@@ -16,7 +16,7 @@ export const prepareClient = async (chain: Chain) => {
 
     const publicClient = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id]),
+        transport: http(getRpcUrl(chain.id)),
     })
 
     const bundlerClient = createBundlerClient({

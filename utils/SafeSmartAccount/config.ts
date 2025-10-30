@@ -87,8 +87,7 @@ function getRequiredEnv(key: string): string {
     const value = import.meta.env[key]
     if (!value) {
         throw new Error(
-            `❌ 缺少必需的环境变量: ${key}\n` +
-            `请在 Vercel 环境变量中设置 ${key}`
+            `❌ 缺少必需的环境变量: ${key}\n` 
         )
     }
     return value
@@ -105,10 +104,23 @@ function getRequiredEnv(key: string): string {
 //     10: import.meta.env.VITE_OP_RPC_URL, // 测试阶段注释掉
 //     //11155111: import.meta.env.VITE_SEPOLIA_RPC_URL!,
 // }
-export const BUNDLER_URL: BundlerUrl = {
-    10: getRequiredEnv('NUXT_PUBLIC_OP_BUNDLER_URL'), // ✅ 使用检查
+
+// ===== 使用 Nuxt runtimeConfig 的运行时读取（推荐在调用处使用）=====
+function requirePublicRuntime(key: string): string {
+    const { public: pub } = useRuntimeConfig()
+    const value = (pub as any)?.[key]
+    if (!value) {
+        throw new Error(`❌ 缺少必需的环境变量: ${key}`)
+    }
+    return value as string
 }
 
-export const RPC_URL: RPCUrl = {
-    10: getRequiredEnv('NUXT_PUBLIC_OP_RPC_URL'), // ✅ 使用检查
+export function getBundlerUrl(chainId: number): string {
+    if (chainId === 10) return requirePublicRuntime('OP_BUNDLER_URL')
+    throw new Error(`Unsupported chain: ${chainId}`)
+}
+
+export function getRpcUrl(chainId: number): string {
+    if (chainId === 10) return requirePublicRuntime('OP_RPC_URL')
+    throw new Error(`Unsupported chain: ${chainId}`)
 }

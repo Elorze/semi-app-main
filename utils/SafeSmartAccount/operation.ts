@@ -3,7 +3,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getSafeAccount, predictSafeAccountAddress } from './account'
 import { prepareClient } from './utils/prepareClient'
 import { erc20Abi } from 'viem'
-import { RPC_URL, BUNDLER_URL } from './config'
+import { getRpcUrl, getBundlerUrl } from './config'
 
 export interface TransferOptions {
     to: Address
@@ -20,12 +20,12 @@ export const normalTransfer = async ({ to, amount, privateKey, chain }: Transfer
     const client = createWalletClient({
         account,
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
 
     const publicClient = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
 
     const hash = await client.sendTransaction({
@@ -48,12 +48,12 @@ export const normalTransferErc20 = async ({ to, amount, privateKey, chain, erc20
     const client = createWalletClient({
         account,
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
 
     const publicClient = createPublicClient({
         chain,
-        transport: http(RPC_URL[chain.id])
+        transport: http(getRpcUrl(chain.id))
     })
 
     const decimals = await publicClient.readContract({
@@ -251,7 +251,7 @@ export const transferErc20 = async ({ to, amount, privateKey, chain, erc20TokenA
 }
 
 export const pimlicoGetUserOperationGasPrice = async (chain: Chain) => {
-    const response = await fetch(`${BUNDLER_URL[chain.id]}`, {
+    const response = await fetch(`${getBundlerUrl(chain.id)}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
