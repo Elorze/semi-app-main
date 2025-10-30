@@ -97,9 +97,9 @@ function getRequiredEnv(key: string): string {
 //     //11155111: import.meta.env.VITE_SEPOLIA_RPC_URL!,
 // }
 export const BUNDLER_URL: BundlerUrl = {
-    10: getRequiredEnv('VITE_OP_BUNDLER_URL'), // ✅ 使用检查
+    10: getRequiredEnv('NUXT_PUBLIC_OP_BUNDLER_URL'), // ✅ 使用检查
 }
 
 export const RPC_URL: RPCUrl = {
-    10: getRequiredEnv('VITE_OP_RPC_URL'), // ✅ 使用检查
+    10: getRequiredEnv('NUXT_PUBLIC_OP_RPC_URL'), // ✅ 使用检查
 }
