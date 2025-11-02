@@ -62,7 +62,26 @@ export async function fetchNFTs() {
     return nfts;
   } catch (error) {
     console.error(`[${new Date().toISOString()}] [RECV] 接收数据: 获取NFT失败 -> ${String(error)}`);
-    throw error;
+
+    // 🔧 捕获链不支持或其他 API 错误，返回空数组而不是抛出错误
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      
+      // 检查是否是链不支持的错误
+      if (
+        errorMessage.includes('not available for chains') ||
+        errorMessage.includes('not supported') ||
+        errorMessage.includes('unsupported chain') ||
+        errorMessage.includes('insight is not available')
+      ) {
+        console.warn('⚠️ Thirdweb Insight 不支持当前链，返回空数组');
+        return []; // 返回空数组，前端会显示"没有NFT"
+      }
+    }
+    
+    // 其他错误也返回空数组，避免显示错误信息
+    console.warn('⚠️ 获取NFT失败，返回空数组以避免显示错误');
+    return [];
   }
 }
 

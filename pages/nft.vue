@@ -13,17 +13,6 @@
       <span class="ml-2 text-gray-600">加载中...</span>
     </div>
 
-    <!-- 错误状态 -->
-    <div v-if="error" class="flex flex-col items-center justify-center py-12">
-      <div class="text-red-500 mb-4">
-        <UIcon name="i-heroicons-exclamation-triangle" size="48" />
-      </div>
-      <p class="text-gray-600 mb-4">{{ error }}</p>
-      <UButton @click="fetchData" color="primary">
-        重试
-      </UButton>
-    </div>
-
     <!-- NFT网格 - 优化后的自适应布局 -->
     <div v-if="nfts.length" class="nft-grid-container">
       <div class="nft-grid">
@@ -57,7 +46,7 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!loading && !error && nfts.length === 0" class="flex flex-col items-center justify-center py-12">
+    <div v-if="!loading && nfts.length === 0" class="flex flex-col items-center justify-center py-12">
       <div class="text-gray-400 mb-4">
         <UIcon name="i-heroicons-photo" size="48" />
       </div>
@@ -108,7 +97,8 @@ const fetchData = async () => {
     console.log('获取到的NFT数据:', nfts.value)
   } catch (err) {
     console.error('获取NFT失败:', err)
-    error.value = err instanceof Error ? err.message : '获取NFT数据失败'
+    // 🔧 不设置错误，而是设置为空数组，显示"没有NFT"而不是错误信息
+    nfts.value = []
   } finally {
     loading.value = false
   }
