@@ -15,37 +15,44 @@ export default defineEventHandler(async (event) => {
         // const url = `https://safe-client.safe.global/v1/chains/${chainId}/safes/${safeAddress}/transactions/history?timezone=${encodedTimezone}&trusted=true&imitation=false`
         
         // ✅ 新 API：使用 Etherscan API 查询内部交易（包括模块交易）
-        const url = `https://proxy.ntdao.xyz/etherscan/v2/api?chainid=${chainId}&module=account&action=txlistinternal&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
-        console.log('请求 URL:', url.replace(apiKey || '', '***'))
+        // const url = `https://proxy.ntdao.xyz/etherscan/v2/api?chainid=${chainId}&module=account&action=txlistinternal&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
+       
+        const apiBase = 'https://proxy.ntdao.xyz/etherscan'
+        // 1. 获取内部转账（原生代币 ETH）
+        const internalUrl = `${apiBase}/v2/api?chainid=${chainId}&module=account&action=txlistinternal&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
         
-        const result = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json',
-                'Referer': 'https://app.safe.global/',
-            },
-            signal: AbortSignal.timeout(30000)
-        })
+        // 2. 获取 ERC20 转账
+        const tokenUrl = `${apiBase}/v2/api?chainid=${chainId}&module=account&action=tokentx&address=${safeAddress}&startblock=0&endblock=99999999&sort=desc&apikey=${apiKey}`
         
-        console.log('API 响应状态:', result.status)
-        console.log('API 响应头:', Object.fromEntries(result.headers.entries()))
+        console.log('请求 URL:', internalUrl.replace(apiKey || '', '***'))
         
-        if (!result.ok) {
-            const errorText = await result.text()
-            console.error('Safe API 错误:', errorText)
-            throw new Error(`Safe API 返回错误: ${result.status} - ${errorText}`)
-        }
+         // 并行请求两个接口
+         const [internalResult, tokenResult] = await Promise.all([
+            fetch(internalUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/json',
+                },
+                signal: AbortSignal.timeout(30000)
+            }),
+            fetch(tokenUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/json',
+                },
+                signal: AbortSignal.timeout(30000)
+            })
+        ])
         
-        const data = await result.json()
-        console.log('Etherscan API 原始返回数据:', data)
-        console.log('返回交易数量:', data.result?.length || 0)
+        const internalData = await internalResult.json()
+        const tokenData = await tokenResult.json()
         
-        // ✅ 转换 Etherscan 格式为前端期望的 Safe 格式
-        // Etherscan 返回格式: { status, message, result: [...] }
-        // Safe 格式: { count, results: [{ type: 'TRANSACTION', transaction: {...} }] }
-        const transformedData = {
-            count: data.result?.length || 0,
-            results: data.result?.map((tx: any) => ({
+        console.log('原生币转账数量:', internalData.result?.length || 0)
+        console.log('ERC20 转账数量:', tokenData.result?.length || 0)
+        
+         // 合并两种转账
+         const allTransactions = [
+            ...(internalData.result?.map((tx: any) => ({
                 type: 'TRANSACTION',
                 transaction: {
                     txInfo: {
@@ -54,22 +61,50 @@ export default defineEventHandler(async (event) => {
                         recipient: { value: tx.to },
                         transferInfo: {
                             type: 'NATIVE_COIN',
-                            value: tx.value
+                            value: tx.value,
+                            tokenSymbol: 'ETH' // 原生币
                         }
                     },
-                    timestamp: parseInt(tx.timeStamp) * 1000, // Etherscan 返回秒，需转换为毫秒
+                    timestamp: parseInt(tx.timeStamp) * 1000,
                     txStatus: tx.isError === '0' ? 'SUCCESS' : 'FAILED',
                     txHash: tx.hash,
                 }
-            })) || []
+            })) || []),
+            ...(tokenData.result?.map((tx: any) => ({
+                type: 'TRANSACTION',
+                transaction: {
+                    txInfo: {
+                        type: 'Transfer',
+                        sender: { value: tx.from },
+                        recipient: { value: tx.to },
+                        transferInfo: {
+                            type: 'ERC20',
+                            value: tx.value,
+                            tokenSymbol: tx.tokenSymbol, // ERC20 代币符号
+                            tokenName: tx.tokenName,
+                            tokenAddress: tx.contractAddress
+                        }
+                    },
+                    timestamp: parseInt(tx.timeStamp) * 1000,
+                    txStatus: (tx.isError === undefined || tx.isError === '0') ? 'SUCCESS' : 'FAILED',
+                    txHash: tx.hash,
+                }
+            })) || [])
+        ]
+
+        // 按时间戳排序
+        allTransactions.sort((a, b) => b.transaction.timestamp - a.transaction.timestamp)
+        
+        console.log('✅ 转换后的数据，总数:', allTransactions.length)
+        return {
+            count: allTransactions.length,
+            results: allTransactions
         }
-        
-        console.log('✅ 转换后的数据:', transformedData)
-        return transformedData
-        
-        // ❌ 旧代码：直接返回原始数据（格式不兼容前端）
-        // return data
-        
+        // ✅ 转换 Etherscan 格式为前端期望的 Safe 格式
+        // Etherscan 返回格式: { status, message, result: [...] }
+        // Safe 格式: { count, results: [{ type: 'TRANSACTION', transaction: {...} }] }
+       
+
     } catch (error) {
         console.error('Safe API 调用失败:', error)
         // 返回空数据而不是抛出错误，避免前端崩溃

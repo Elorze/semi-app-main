@@ -37,34 +37,6 @@ export const AUTH_TOKEN_KEY = 'semi_auth_token';
 
 export const MOCK_RESPONSE = false;
 
-// 方案B：全局变量存储真实生成的钱包信息
-let mockWalletInfo: { evm_chain_address?: string; evm_chain_active_key?: string; encrypted_keys?: string } = {}
-
-// Mock 用户数据
-const mockUser = {
-    id: 1,
-    phone: '13800138000',
-    evm_chain_address: '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95', // 更新为正确的 Safe Account 地址
-    evm_chain_active_key: '0x1eab22ccc0e4e0f2f1430de7d12580481e4a5fefa15257449f2ef26284b090ab', // 更新为正确的私钥
-    encrypted_keys: JSON.stringify({
-        version: 3,
-        id: 'mock-id',
-        address: '0xDce410f6BD8FD4dAa45026EDb8F8b0C2C9cc904e', // 普通地址
-        crypto: {
-            ciphertext: 'mock_ciphertext',
-            cipherparams: { iv: 'mock_iv_hex' },
-            cipher: 'aes-128-ctr',
-            kdf: 'pbkdf2',
-            kdfparams: {
-                dklen: 32,
-                salt: 'mock_salt_hex',
-                c: 262144,
-                prf: 'hmac-sha256'
-            },
-            mac: 'mock_mac'
-        }
-    })
-}
 
 // 通用请求处理函数
 async function handleRequest<T>(response: Response): Promise<T> {
@@ -207,15 +179,6 @@ export interface SetEncryptedKeysProps  {
 }
 
 export async function setEncryptedKeys(props: SetEncryptedKeysProps): Promise<BaseResponse> {
-    if (MOCK_RESPONSE) {
-        // 方案B：保存真实生成的钱包信息到全局变量
-        mockWalletInfo = {
-            evm_chain_address: props.evm_chain_address,
-            evm_chain_active_key: props.evm_chain_active_key,
-            encrypted_keys: props.encrypted_keys
-        }
-        return { result: 'ok' } as BaseResponse;
-    }
     const response = await fetch(`${API_BASE_URL}/set_encrypted_keys`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -234,22 +197,6 @@ export async function getEncryptedKeys(id: string): Promise<EncryptedKeysRespons
 
 // 8. 获取用户信息
 export async function getUser(id: string): Promise<UserInfo> {
-    // mock - 使用真实的 Safe Account 地址
-    const moc_response = {
-        id: '1234567890',
-        handle: 'test',
-        email: 'test@test.com',
-        phone: '1234567890',
-        image_url: 'https://test.com/test.jpg',
-        // 真实的 Safe Account 地址 - 与发送页面保持一致 测试
-        evm_chain_address: '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95',
-        evm_chain_active_key: '0x1eab22ccc0e4e0f2f1430de7d12580481e4a5fefa15257449f2ef26284b090ab', // 对应的私钥地址
-        encrypted_keys: '{"version":1,"crypto":{"ciphertext":"YWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9u","iv":"123456789012345678901234","salt":"12345678901234567890123456789012","kdf":"pbkdf2","cipher":"aes-gcm","iterations":100000,"hash":"SHA-256"}}',
-    } as UserInfo
-
-    if (MOCK_RESPONSE) {
-        return moc_response
-    }
     const response = await fetch(`${API_BASE_URL}/get_user?id=${id}`, {
         headers: getAuthHeaders(),
     });
@@ -257,22 +204,6 @@ export async function getUser(id: string): Promise<UserInfo> {
 }
 
 export async function getMe(): Promise<UserInfo> {
-    // mock - 使用真实的 Safe Account 地址
-    const moc_response = {
-        id: '1234567890',
-        handle: 'test',
-        email: 'test@test.com',
-        phone: '1234567890',
-        image_url: 'https://test.com/test.jpg',
-        // 真实的 Safe Account 地址 - 与发送页面保持一致
-        evm_chain_address: '0x1B8c9A4057D9Ed35F8740fFbC96229aF43ACeE95',
-        evm_chain_active_key: '0x1eab22ccc0e4e0f2f1430de7d12580481e4a5fefa15257449f2ef26284b090ab', // 对应的私钥地址
-        encrypted_keys: '{"version":1,"crypto":{"ciphertext":"YWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9uIGFiYW5kb24gYWJhbmRvbiBhYmFuZG9u","iv":"123456789012345678901234","salt":"12345678901234567890123456789012","kdf":"pbkdf2","cipher":"aes-gcm","iterations":100000,"hash":"SHA-256"}}',
-    } as UserInfo
-
-    if (MOCK_RESPONSE) {
-        return moc_response
-    }
     const response = await fetch(`${API_BASE_URL}/get_me`, {
         headers: getAuthHeaders(),
     });

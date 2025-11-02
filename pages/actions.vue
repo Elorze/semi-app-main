@@ -26,7 +26,10 @@
                 v-for="(action, index) in actions" :key="index" @click="toExplorer(action.txHex)">
                 <div class="flex flex-row gap-2">
                     <div class="flex flex-col">
-                        <div class="font-medium">To: {{ formatAddress(action.to) }}</div>
+                        <div class="font-medium">
+                            <span v-if="isSent(action)">To: {{ formatAddress(action.to) }}</span>
+                            <span v-else>From: {{ formatAddress(action.from) }}</span>
+                        </div>
                         <div class="text-gray-400 text-sm flex flex-row gap-1 items-center" v-if="action.token === 'NATIVE_COIN'">
                             <div>{{ displayBalance(action.value, 6, 18) }} {{ useChain.chain.nativeCurrency.symbol }}</div>
                         </div>
@@ -62,6 +65,11 @@ const router = useRouter()
 const toExplorer = (tx: string) => {
     const url = useChain.chain.blockExplorers?.default?.url
     window.open(`${url}/tx/${tx}`, '_blank')
+}
+
+const isSent = (action: ActionPreview) => {
+    const userAddress = user.value?.evm_chain_address?.toLowerCase()
+    return action.from.toLowerCase() === userAddress
 }
 
 onMounted(async () => {

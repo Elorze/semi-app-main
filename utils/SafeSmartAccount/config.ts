@@ -73,39 +73,7 @@ export const V1_4_1_DEPLOYMENTS: Deployment = {
     // }
 }
 
-// 辅助函数：检查必需的环境变量
-function getRequiredEnv(key: string): string {
-        // 🔍 调试：打印所有相关信息
-    console.log('🔍 === 环境变量调试 ===')
-    console.log('查找的 key:', key)
-    console.log(`import.meta.env[${key}]:`, import.meta.env[key])
-    console.log('所有 NUXT_PUBLIC_ 开头的环境变量:', 
-        Object.keys(import.meta.env).filter(k => k.startsWith('NUXT_PUBLIC_')))
-    console.log('所有环境变量 key:', Object.keys(import.meta.env))
-    console.log('========================')
-    
-    const value = import.meta.env[key]
-    if (!value) {
-        throw new Error(
-            `❌ 缺少必需的环境变量: ${key}\n` 
-        )
-    }
-    return value
-}
 
-// 测试阶段：只配置 Sepolia 测试网
-// 开发阶段：取消注释添加 Optimism 主网支持
-// export const BUNDLER_URL: BundlerUrl = {
-//     10: import.meta.env.VITE_OP_BUNDLER_URL!, // 测试阶段注释掉
-//     //11155111: import.meta.env.VITE_SEPOLIA_BUNDLER_URL!,
-// }
-
-// export const RPC_URL: RPCUrl = {
-//     10: import.meta.env.VITE_OP_RPC_URL, // 测试阶段注释掉
-//     //11155111: import.meta.env.VITE_SEPOLIA_RPC_URL!,
-// }
-
-// ===== 使用 Nuxt runtimeConfig 的运行时读取（推荐在调用处使用）=====
 function requirePublicRuntime(key: string): string {
     const { public: pub } = useRuntimeConfig()
     const value = (pub as any)?.[key]

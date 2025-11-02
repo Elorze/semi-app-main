@@ -155,16 +155,9 @@ const onSubmit = async () => {
     let mnemonic: string
     let privateKey: string
 
-    if (MOCK_RESPONSE) {
-        // 测试模式：使用正确的私钥，跳过真实的解密过程
-        mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'
-        privateKey = '0x1eab22ccc0e4e0f2f1430de7d12580481e4a5fefa15257449f2ef26284b090ab' // 使用正确的私钥
-    } else {
-        // 正式模式：使用真实的解密过程
-        mnemonic = await decryptKeystoreToMnemonic(JSON.parse(user.user?.encrypted_keys as string), formState.code.join(''))
-        privateKey = await mnemonicToPrivateKey(mnemonic)
-    }
-
+    mnemonic = await decryptKeystoreToMnemonic(JSON.parse(user.user?.encrypted_keys as string), formState.code.join(''))
+    privateKey = await mnemonicToPrivateKey(mnemonic)
+    
     loading.value = true
     try {
         // 这里添加转账逻辑
