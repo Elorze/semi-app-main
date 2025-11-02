@@ -13,12 +13,12 @@
                 <UForm :state="formState" @submit="onSubmit" class="w-full">
                     <UFormField name="to" label="接收地址">
                         <UInput size="xl" class="w-full" variant="subtle" v-model="formState.to" placeholder="请输入接收地址"
-                            :ui="{ base: 'w-full' }" :disabled="loading" /> <!-- 测试模式：允许余额为0时输入，正式使用需恢复 !balance 检查 -->
+                            :ui="{ base: 'w-full' }" :disabled="loading" /> 
                     </UFormField>
 
                     <UFormField name="amount" label="发送数量" class="mt-4">
                         <UInput variant="subtle" size="xl" class="w-full" v-model="formState.amount" placeholder="请输入发送数量"
-                            :ui="{ base: 'w-full' }" :disabled="loading" /> <!-- 测试模式：允许余额为0时输入，正式使用需恢复 !balance 检查 -->
+                            :ui="{ base: 'w-full' }" :disabled="loading" /> 
                     </UFormField>
 
                     <div class="mt-4">
@@ -27,14 +27,10 @@
                             <span class="text-3xl font-bold">{{ displayBalance(balance) }} {{
                                 useChain.chain.nativeCurrency.symbol }}</span>
                         </div>
-                        <!-- 测试模式：添加提示信息 -->
-                        <div v-if="balance === BigInt(0)" class="text-orange-500 text-sm mt-2">
-                            💡 测试模式：余额为0时仍可转账以触发Safe Account部署
-                        </div>
                     </div>
 
                     <UButton type="submit" color="primary" class="w-full mt-4 flex justify-center items-center"
-                        size="xl" :loading="loading" :disabled="loading || !isFormValid"> <!-- 测试模式：允许余额为0时转账，正式使用需恢复 !balance 检查 -->
+                        size="xl" :loading="loading" :disabled="loading || !isFormValid"> 
                         下一步
                     </UButton>
                 </UForm>
@@ -110,13 +106,18 @@ const fetchBalance = async () => {
     try {
         loading.value = true
         
+        await user.getUser()
+
+        const safeAddress = user.user?.evm_chain_address as `0x${string}`
+
         console.log('🔍 === 余额查询调试信息 ===')
         console.log('当前链:', useChain.chain)
         console.log('链ID:', useChain.chain.id)
+
+        // 实际获取余额
+        balance.value = await getBalance(safeAddress, useChain.chain)
         
         console.log('查询到的余额:', balance.value)
-        console.log('余额 (ETH):', Number(formatEther(balance.value)))
-        console.log('显示余额 (格式化):', displayBalance(balance.value))
         console.log('=====================================')
         
     } catch (error) {
@@ -134,18 +135,17 @@ const fetchBalance = async () => {
 // 表单提交
 const onSubmit = async () => {
     if (step.value === 1) {
-        // 测试模式：跳过余额验证，允许0余额转账以触发Safe Account部署
-        // 正式使用时需要恢复以下验证逻辑：
-        // const amount = parseFloat(formState.amount)
-        // const balanceInEth = Number(formatEther(balance.value))
-        // if (amount > balanceInEth) {
-        //     toast.add({
-        //         title: '余额不足',
-        //         description: '发送数量不能大于账户余额',
-        //         color: 'error'
-        //     })
-        //     return
-        // }
+        // 验证逻辑
+        const amount = parseFloat(formState.amount)
+        const balanceInEth = Number(formatEther(balance.value))
+        if (amount > balanceInEth) {
+            toast.add({
+                title: '余额不足',
+                description: '发送数量不能大于账户余额',
+                color: 'error'
+            })
+            return
+        }
         
         step.value = 2
         return
